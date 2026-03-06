@@ -142,11 +142,14 @@ app.use((err, req, res, next) => {
 // START SERVER
 // ─────────────────────────────────────────
 const PORT = process.env.PORT || 8080;
-
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || "development"}`);
 
-  // Start all cron jobs after server is listening
-  startAllCrons();
+  try {
+    startAllCrons();
+    console.log("✅ Cron jobs started");
+  } catch (error) {
+    console.error("❌ Cron startup error:", error);
+  }
 });
