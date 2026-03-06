@@ -9,16 +9,23 @@
     "start": "node src/server.js"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "@sendgrid/mail": "^8.1.6",
     "@supabase/supabase-js": "^2.91.1",
-    "axios": "^1.13.3",
+    "axios": "^1.13.4",
     "bcryptjs": "^3.0.3",
+    "cheerio": "^1.2.0",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "google-auth-library": "^10.5.0",
     "googleapis": "^170.1.0",
     "jsonwebtoken": "^9.0.3",
+    "node-cron": "^4.2.1",
     "node-fetch": "^2.7.0",
+    "openai": "^6.25.0",
+    "razorpay": "^2.9.6",
     "supabase": "^2.72.8"
   },
   "devDependencies": {
