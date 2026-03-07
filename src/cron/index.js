@@ -1,6 +1,6 @@
 import { startExpireTrialCron }      from "./expireTrial.js";
 import { startResetUsageCron }        from "./resetUsage.js";
-import { startSubscriptionCheckCron } from "./subscriptionCheck.js";
+import { startSubscriptionCheckCron } from "./subscription.js";
 import { startSendReportsCron }       from "./sendReports.js";
 import { startDailyVisibilityCron } from "./runDailyVisibility.js";
 
