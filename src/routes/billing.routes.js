@@ -42,8 +42,8 @@ import {
   createSubscription,
   verifyPayment,
   cancelSubscription,
-  billingWebhook,
-  getPlanPricing,       // ← NEW
+  billingWebhook,  
+  getPlanPricing,    // ← NEW
 } from "../controllers/billingController.js";
 
 const router = express.Router();
