@@ -25,7 +25,47 @@ const razorpay = new Razorpay({
 });
 
 
+// ─────────────────────────────────────────────────────────────────
+// TIER LIMITS
+// ─────────────────────────────────────────────────────────────────
+const TIER_LIMITS = {
+  starter: { prompts: 20, pages: 10, competitors: 10,  projects: 1 },
+  pro:     { prompts: 50, pages: 20, competitors: 20, projects: 3 },
+};
 
+// ─────────────────────────────────────────────────────────────────
+// PLANS — Razorpay plan IDs from .env
+// ─────────────────────────────────────────────────────────────────
+const PLANS = {
+  starter: {
+    plan_id:  process.env.RAZORPAY_PLAN_STARTER,
+    name:     "Starter",
+    amount:   299900,
+    currency: "INR",
+    interval: "monthly",
+  },
+  starter_yearly: {
+    plan_id:  process.env.RAZORPAY_PLAN_STARTER_YEARLY,
+    name:     "Starter Yearly",
+    amount:   2999000,
+    currency: "INR",
+    interval: "yearly",
+  },
+  pro: {
+    plan_id:  process.env.RAZORPAY_PLAN_PRO,
+    name:     "Pro",
+    amount:   799900,
+    currency: "INR",
+    interval: "monthly",
+  },
+  pro_yearly: {
+    plan_id:  process.env.RAZORPAY_PLAN_PRO_YEARLY,
+    name:     "Pro Yearly",
+    amount:   7999000,
+    currency: "INR",
+    interval: "yearly",
+  },
+};
 
 // Fallback if pricing_plans table is empty or errors
 const HARDCODED_FALLBACK = {

@@ -49,7 +49,7 @@ import {
 const router = express.Router();
 
 // ── Public pricing (used by CheckoutModal — no hardcoded prices on frontend) ──
-router.get("/plans/pricing", authMiddleware, getPlanPricing);
+router.get("/plans/pricing",  getPlanPricing);
 
 // ── Billing status & usage ──
 router.get("/",        authMiddleware, getBillingStatus);
