@@ -383,7 +383,7 @@ import {
   ignoreSuggestedCompetitor,
   addCompetitor,
   confirmCompetitorReview,
-} from "../controllers/aeo/aeocompetitor.controller.js";
+} from "../controllers/aeo/aeoCompetitor.controller.js";
 import { getCompetitorPrompts } from "../controllers/aeo/competitorPrompts.controller.js";
 import { runGapAnalysis }       from "../controllers/aeo/aeoGap.controller.js";
 import { getAeoPresence }       from "../controllers/aeo/aeoPresence.controller.js";
