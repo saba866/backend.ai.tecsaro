@@ -197,6 +197,7 @@ import aeoRoutes          from "./routes/aeo.routes.js";
 import testRoute          from "./routes/test.route.js";
 import profileRoutes      from "./routes/profile.routes.js";
 import billingRoutes from "./routes/billing.routes.js";
+import couponRoutes from "./routes/coupon.routes.js"
 
 // ─────────────────────────────────────────
 // APP SETUP
@@ -205,15 +206,15 @@ const app = express();
 
 app.use(cookieParser());
 
-// app.use(cors({
-//   origin:      process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
-//   credentials: true,
-// }));
-
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS?.split(",") ?? ["http://localhost:3000"],
+  origin:      process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
   credentials: true,
-}))
+}));
+
+// app.use(cors({
+//   origin: process.env.ALLOWED_ORIGINS?.split(",") ?? ["http://localhost:3000"],
+//   credentials: true,
+// }))
 // ─────────────────────────────────────────
 // BODY PARSERS (after webhook)
 // ─────────────────────────────────────────
@@ -233,6 +234,7 @@ app.use("/api/integrations", integrationsRoutes);
 app.use("/api/google",       googleRoutes);
 app.use("/aeo",              aeoRoutes);
 app.use("/",                 pricingRoutes);
+app.use("/coupons", couponRoutes)
 app.use("/",                 testRoute);
 
 // ─────────────────────────────────────────
