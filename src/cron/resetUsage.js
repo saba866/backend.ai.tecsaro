@@ -150,7 +150,7 @@ export async function resetMonthlyUsage() {
     const { error: billingResetErr } = await supabase
       .from("billing_profiles")
       .update({ api_calls_this_month: 0, usage_reset_at: now, updated_at: now })
-      .in("id", profileIds)
+      .in("user_id", profileIds)
 
     if (billingResetErr) console.warn("⚠️  [resetUsage] Billing usage reset skipped:", billingResetErr.message)
     else console.log(`   ✅ Billing usage counters reset`)
