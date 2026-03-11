@@ -280,8 +280,6 @@
 
 
 
-import dotenv from "dotenv";
-dotenv.config();
 
 // ─────────────────────────────────────────
 // GLOBAL ERROR HANDLERS
