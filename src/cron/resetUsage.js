@@ -103,7 +103,6 @@
 // export { resetMonthlyUsage };
 
 
-
 import { supabase } from "../config/supabase.js"
 
 export async function resetMonthlyUsage() {
@@ -114,7 +113,7 @@ export async function resetMonthlyUsage() {
 
     const { data: paidProfiles, error: fetchErr } = await supabase
       .from("billing_profiles")
-      .select("id, user_id, plan, status")
+      .select("user_id, plan, status")  // ← removed id
       .in("status", ["active", "trial"])
       .in("plan", ["starter", "pro"])
 
@@ -130,9 +129,9 @@ export async function resetMonthlyUsage() {
 
     console.log(`📋 [resetUsage] Resetting usage for ${paidProfiles.length} paid user(s)`)
 
-    const userIds    = paidProfiles.map((p) => p.user_id)
-    const profileIds = paidProfiles.map((p) => p.id)
+    const userIds = paidProfiles.map((p) => p.user_id)
 
+    // Reset plans table
     const { error: planResetErr } = await supabase
       .from("plans")
       .update({
@@ -147,10 +146,11 @@ export async function resetMonthlyUsage() {
     if (planResetErr) console.error("❌ [resetUsage] Failed to reset plan usage:", planResetErr.message)
     else console.log(`   ✅ Plan usage counters reset for ${userIds.length} users`)
 
+    // Reset billing_profiles table — use user_id not id
     const { error: billingResetErr } = await supabase
       .from("billing_profiles")
       .update({ api_calls_this_month: 0, usage_reset_at: now, updated_at: now })
-      .in("user_id", profileIds)
+      .in("user_id", userIds)  // ← fixed: was profileIds
 
     if (billingResetErr) console.warn("⚠️  [resetUsage] Billing usage reset skipped:", billingResetErr.message)
     else console.log(`   ✅ Billing usage counters reset`)
