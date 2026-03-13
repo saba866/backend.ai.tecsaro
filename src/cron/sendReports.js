@@ -718,7 +718,7 @@ async function getPlansWithReports(reportField) {
 
   const { data: profiles, error: profileErr } = await supabase
     .from("profiles")
-    .select("id, email, full_name")
+    .select("id, email, name")
     .in("id", userIds)
 
   if (profileErr) {
@@ -735,7 +735,7 @@ async function getPlansWithReports(reportField) {
   return plans.map((plan) => ({
     ...plan,
     email: profileMap[plan.user_id]?.email     ?? null,
-    name:  profileMap[plan.user_id]?.full_name ?? null,
+    name:  profileMap[plan.user_id]?.name ?? null,
   }))
 }
 
