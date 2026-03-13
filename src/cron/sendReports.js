@@ -687,7 +687,7 @@ function buildMonthlyReportEmail(plan, score, breakdown, prevScore) {
       <a href="${APP_URL}/dashboard" style="display: inline-block; background: #10b981; color: white; text-decoration: none; padding: 12px 32px; border-radius: 8px; font-weight: 600; font-size: 15px;">View Full Monthly Report →</a>
     </div>
     <div style="text-align: center; color: #475569; font-size: 12px; border-top: 1px solid #1e293b; padding-top: 20px;">
-      <p style="margin: 0;">Tecsaro · <a href="${APP_URL}/settings/notifications" style="color: #64748b;">Unsubscribe</a></p>
+      <p style="margin: 0;">Tecsaro · <a href="${APP_URL}/dashboard/settings/notifications" style="color: #64748b;">Unsubscribe</a></p>
     </div>
   </div>
 </body>
