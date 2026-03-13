@@ -554,8 +554,8 @@ import { supabase } from "../config/supabase.js"
 sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 
 const FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL || "reports@tecsaro.com"
-const FROM_NAME  = "TecSaro AEO Reports"
-const APP_URL    = process.env.NEXT_PUBLIC_APP_URL || "https://app.tecsaro.com"
+const FROM_NAME  = "Tecsaro AI AEO Reports"
+const APP_URL    = process.env.NEXT_PUBLIC_APP_URL || "https://ai.tecsaro.com"
 
 // ─────────────────────────────────────────
 // DAILY SMALL REPORT EMAIL
@@ -577,7 +577,7 @@ function buildDailyReportEmail(plan, score, breakdown) {
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; margin: 0; padding: 24px;">
   <div style="max-width: 600px; margin: 0 auto;">
     <div style="text-align: center; margin-bottom: 32px;">
-      <h1 style="color: #10b981; font-size: 24px; margin: 0;">TecSaro AEO</h1>
+      <h1 style="color: #10b981; font-size: 24px; margin: 0;">Tecsaro AI</h1>
       <p style="color: #64748b; margin: 8px 0 0;">Daily Visibility Report · ${new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</p>
     </div>
     <div style="background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 24px; margin-bottom: 24px; text-align: center;">
@@ -614,7 +614,7 @@ function buildDailyReportEmail(plan, score, breakdown) {
       <a href="${APP_URL}/dashboard" style="display: inline-block; background: #10b981; color: white; text-decoration: none; padding: 12px 32px; border-radius: 8px; font-weight: 600; font-size: 15px;">View Dashboard →</a>
     </div>
     <div style="text-align: center; color: #475569; font-size: 12px; border-top: 1px solid #1e293b; padding-top: 20px;">
-      <p style="margin: 0;">TecSaro · <a href="${APP_URL}/settings/notifications" style="color: #64748b;">Unsubscribe</a></p>
+      <p style="margin: 0;">Tecsaro AI· <a href="${APP_URL}/settings/notifications" style="color: #64748b;">Unsubscribe</a></p>
     </div>
   </div>
 </body>
@@ -649,7 +649,7 @@ function buildMonthlyReportEmail(plan, score, breakdown, prevScore) {
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; margin: 0; padding: 24px;">
   <div style="max-width: 600px; margin: 0 auto;">
     <div style="text-align: center; margin-bottom: 32px;">
-      <h1 style="color: #10b981; font-size: 24px; margin: 0;">TecSaro AEO</h1>
+      <h1 style="color: #10b981; font-size: 24px; margin: 0;">Tecsaro AI</h1>
       <p style="color: #64748b; margin: 8px 0 0;">Monthly Report · ${month}</p>
     </div>
     <div style="background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 24px; margin-bottom: 24px; text-align: center;">
@@ -687,7 +687,7 @@ function buildMonthlyReportEmail(plan, score, breakdown, prevScore) {
       <a href="${APP_URL}/dashboard" style="display: inline-block; background: #10b981; color: white; text-decoration: none; padding: 12px 32px; border-radius: 8px; font-weight: 600; font-size: 15px;">View Full Monthly Report →</a>
     </div>
     <div style="text-align: center; color: #475569; font-size: 12px; border-top: 1px solid #1e293b; padding-top: 20px;">
-      <p style="margin: 0;">TecSaro · <a href="${APP_URL}/settings/notifications" style="color: #64748b;">Unsubscribe</a></p>
+      <p style="margin: 0;">Tecsaro · <a href="${APP_URL}/settings/notifications" style="color: #64748b;">Unsubscribe</a></p>
     </div>
   </div>
 </body>
