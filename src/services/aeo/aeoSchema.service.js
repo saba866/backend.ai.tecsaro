@@ -1,28 +1,3 @@
-// import { runSchemaJob } from "../../jobs/aeoSchema.job.js";
-
-// export async function startSchemaJob(planId) {
-//   if (!planId) throw new Error("planId is required");
-
-//   // fire-and-forget
-//   setTimeout(() => {
-//     runSchemaJob(planId).catch(err =>
-//       console.error("❌ Schema job failed:", err.message)
-//     );
-//   }, 0);
-
-//   return { status: "started" };
-// }
-
-
-// import { runSchemaJob } from "../../jobs/aeoSchema.job.js";
-
-// export async function startSchemaJob(planId) {
-//   if (!planId) throw new Error("planId is required");
-
-//   console.log("🧩 Starting schema job for plan:", planId);
-//   await runSchemaJob(planId);
-//   return { status: "completed" };
-// }
 
 
 

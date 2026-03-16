@@ -77,7 +77,6 @@
 // by Google Cloud Scheduler
 // ─────────────────────────────────────────
 
-export { expireTrials }          from "./expireTrial.js"
 export { resetMonthlyUsage }     from "./resetUsage.js"
 export { checkSubscriptions }    from "./subscription.js"
 export { sendDailyReports, sendMonthlyReports } from "./sendReports.js"

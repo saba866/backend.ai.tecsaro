@@ -88,3 +88,21 @@ export function salvageJsonArray(raw) {
 
   return null;
 }
+
+
+// ─────────────────────────────────────────
+// ASK OPENAI — plain text response
+// Used for visibility tracking answers
+// ─────────────────────────────────────────
+export async function askOpenAIText(prompt, { max_tokens = 400, temperature = 0.3 } = {}) {
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o-mini", max_tokens, temperature,
+      messages: [
+        { role: "system", content: "You are a helpful AI assistant. Answer clearly, mentioning relevant tools, platforms, and brands by name." },
+        { role: "user",   content: prompt },
+      ],
+    })
+    return response.choices[0]?.message?.content || null
+  } catch (err) { console.error("❌ ChatGPT error:", err.message); return null }
+}

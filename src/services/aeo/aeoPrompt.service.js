@@ -18,9 +18,10 @@ import { runGemini, runGeminiJSON } from "../gemini.service.js";
 // select_min → minimum required to start tracking
 // ─────────────────────────────────────────
 const PROMPT_CONFIG = {
+  free: {generate: 20,  select_max: 10, select_min: 5},
   starter: { generate: 50,  select_max: 20, select_min: 5  },
   pro:     { generate: 100, select_max: 50, select_min: 10 },
-  default: { generate: 50,  select_max: 20, select_min: 5  },
+  
 };
 
 // ─────────────────────────────────────────

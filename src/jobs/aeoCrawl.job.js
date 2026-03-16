@@ -387,6 +387,7 @@ import { runPipelinePhase1 } from "./aeoPipeline.job.js";
 // TIER LIMITS
 // ─────────────────────────────────────────
 const PAGE_LIMITS = {
+  free: 5,
   starter: 10,
   pro:     20,
   default: 10,
