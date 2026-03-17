@@ -29,6 +29,7 @@ const razorpay = new Razorpay({
 // TIER LIMITS
 // ─────────────────────────────────────────────────────────────────
 const TIER_LIMITS = {
+    free:    { prompts: 10, pages: 5,  competitors: 3,  projects: 1 }, 
   starter: { prompts: 20, pages: 10, competitors: 10,  projects: 1 },
   pro:     { prompts: 50, pages: 20, competitors: 20, projects: 3 },
 };
@@ -69,24 +70,31 @@ const PLANS = {
 
 // Fallback if pricing_plans table is empty or errors
 const HARDCODED_FALLBACK = {
+  free: {
+    name: "Free", description: "Get started with basic AEO tracking",
+    monthly_price: 0, yearly_price: 0, yearly_per_month: 0,
+    monthly_plan_key: "free", yearly_plan_key: "free",
+    monthly_display: "₹0", yearly_display: "₹0",
+    features: ["1 brand / project", "Up to 10 prompts tracked", "Track up to 3 competitors", "Gemini only", "AEO Visibility Score", "1 manual run/month"],
+    is_popular: false, trial_days: 0,
+  },
   starter: {
     name: "Starter", description: "For founders and small businesses starting with AEO",
     monthly_price: 2999, yearly_price: 29990, yearly_per_month: 2499,
     monthly_plan_key: "starter", yearly_plan_key: "starter_yearly",
     monthly_display: "₹2,999", yearly_display: "₹29,990",
-    features: ["1 brand / project", "Up to 20 prompts tracked", "Track up to 5 competitors", "ChatGPT & Gemini", "AEO Visibility Score", "Schema generation", "7-day free trial"],
-    is_popular: false, trial_days: 7,
+    features: ["1 brand / project", "Up to 20 prompts tracked", "Track up to 5 competitors", "ChatGPT & Gemini", "AEO Visibility Score", "Schema generation"],
+    is_popular: false, trial_days: 0,   // ← removed trial
   },
   pro: {
     name: "Pro", description: "For growing teams serious about AI answer visibility",
     monthly_price: 7999, yearly_price: 79990, yearly_per_month: 6666,
     monthly_plan_key: "pro", yearly_plan_key: "pro_yearly",
     monthly_display: "₹7,999", yearly_display: "₹79,990",
-    features: ["Up to 3 brands / projects", "Up to 50 prompts tracked", "Track up to 15 competitors", "ChatGPT, Gemini & Perplexity", "Advanced recommendations", "Exportable reports", "7-day free trial"],
-    is_popular: true, trial_days: 7,
+    features: ["Up to 3 brands / projects", "Up to 50 prompts tracked", "Track up to 15 competitors", "ChatGPT, Gemini & Perplexity", "Advanced recommendations", "Exportable reports"],
+    is_popular: true, trial_days: 0,    // ← removed trial
   },
-};
-
+}
 // ─────────────────────────────────────────────────────────────────
 // GET /billing/plans/pricing
 // Reads from pricing_plans table — no hardcoded values
@@ -105,7 +113,7 @@ export const getPlanPricing = async (req, res) => {
         razorpay_monthly_plan_id, razorpay_yearly_plan_id
       `)
       .eq("is_active", true)
-      .in("slug", ["starter", "pro"])
+      .in("slug", ["free","starter", "pro"])
       .order("price_monthly", { ascending: true });
 
     if (error) throw error;
@@ -129,7 +137,7 @@ export const getPlanPricing = async (req, res) => {
         "AEO Visibility Score",
         "Schema generation",
         "Recommendations",
-        `${row.trial_days ?? 7}-day free trial`,
+        
       ].filter(Boolean);
 
       data[tier] = {
@@ -146,7 +154,7 @@ export const getPlanPricing = async (req, res) => {
         yearly_display:   row.price_yearly_display  ?? `₹${row.price_yearly.toLocaleString("en-IN")}`,
         features,
         is_popular:       row.is_popular ?? (tier === "pro"),
-        trial_days:       row.trial_days ?? 7,
+          n69
       };
     }
 
@@ -209,7 +217,7 @@ export const getBillingUsage = async (req, res) => {
   try {
     const billing = await ensureBillingProfile(userId);
     const tier    = billing?.plan ?? "starter";
-    const limits  = TIER_LIMITS[tier] ?? TIER_LIMITS.starter;
+    const limits = TIER_LIMITS[tier] ?? TIER_LIMITS.free ?? TIER_LIMITS.starter
 
     const { count: projectsUsed } = await supabase
       .from("plans")
@@ -264,33 +272,64 @@ export const getBillingUsage = async (req, res) => {
 // GET /billing/invoices
 // ─────────────────────────────────────────────────────────────────
 export const getBillingInvoices = async (req, res) => {
-  const userId = req.user?.id;
-  if (!userId) return apiResponse(res, 401, "Unauthorized");
+  const userId = req.user?.id
+  if (!userId) return apiResponse(res, 401, "Unauthorized")
 
   try {
-    const { data: orders, error } = await supabase
-      .from("razorpay_orders")
-      .select("razorpay_order_id, razorpay_payment_id, amount, currency, status, pricing_plan_slug, created_at")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false })
-      .limit(20);
+    // Fetch from both tables in parallel
+    const [{ data: orders }, { data: invRows }] = await Promise.all([
+      supabase
+        .from("razorpay_orders")
+        .select("razorpay_order_id, razorpay_payment_id, amount, currency, status, pricing_plan_slug, created_at")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(20),
 
-    if (error) throw error;
+      supabase
+        .from("invoices")
+        .select("razorpay_invoice_id, razorpay_payment_id, razorpay_subscription_id, amount, currency, status, invoice_url, created_at")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(20),
+    ])
 
-    const invoices = (orders ?? []).map((o, i) => ({
-      id:     o.razorpay_payment_id ?? o.razorpay_order_id ?? `INV-${String(i + 1).padStart(4, "0")}`,
-      date:   new Date(o.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }),
-      amount: o.amount ? `₹${(o.amount / 100).toLocaleString("en-IN")}` : "₹0",
-      status: o.status === "paid" ? "Paid" : o.status === "created" ? "Pending" : o.status ?? "—",
-    }));
+    // Map razorpay_orders rows
+    const fromOrders = (orders ?? []).map((o, i) => ({
+      id:          o.razorpay_payment_id ?? o.razorpay_order_id ?? `ORD-${String(i + 1).padStart(4, "0")}`,
+      date:        new Date(o.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }),
+      amount:      o.amount ? `₹${(o.amount / 100).toLocaleString("en-IN")}` : "₹0",
+      status:      o.status === "paid" ? "Paid" : o.status === "created" ? "Pending" : o.status ?? "—",
+      invoice_url: null,
+      source:      "order",
+    }))
 
-    return res.status(200).json({ success: true, data: invoices });
+    // Map invoices rows
+    const fromInvoices = (invRows ?? []).map((inv, i) => ({
+      id:          inv.razorpay_payment_id ?? inv.razorpay_invoice_id ?? `INV-${String(i + 1).padStart(4, "0")}`,
+      date:        new Date(inv.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }),
+      amount:      inv.amount ? `₹${(inv.amount / 100).toLocaleString("en-IN")}` : "₹0",
+      status:      inv.status === "paid" ? "Paid" : inv.status === "created" ? "Pending" : inv.status ?? "—",
+      invoice_url: inv.invoice_url ?? null,
+      source:      "invoice",
+    }))
+
+    // Merge, deduplicate by payment_id, sort newest first
+    const seen = new Set()
+    const merged = [...fromInvoices, ...fromOrders]
+      .filter(row => {
+        if (seen.has(row.id)) return false
+        seen.add(row.id)
+        return true
+      })
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .slice(0, 20)
+
+    return res.status(200).json({ success: true, data: merged })
   } catch (err) {
-    console.error("[getBillingInvoices]", err);
-    return apiResponse(res, 500, "Failed to load invoices");
+    console.error("[getBillingInvoices]", err)
+    return apiResponse(res, 500, "Failed to load invoices")
   }
-};
-
+}
 // ─────────────────────────────────────────────────────────────────
 // POST /billing/subscribe
 // ─────────────────────────────────────────────────────────────────

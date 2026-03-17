@@ -96,6 +96,7 @@ export async function activateSubscription({
     subscription_status:  "active",
     current_period_start: now.toISOString(),
     current_period_end:   nextBillingDate.toISOString(),
+    pricing_plan_id:      pricingPlan?.id ?? null, 
   };
   if (razorpaySubscriptionId) plansPayload.razorpay_subscription_id = razorpaySubscriptionId;
 

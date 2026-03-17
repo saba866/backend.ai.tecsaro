@@ -91,6 +91,13 @@ router.get( "/suggested",                    getSuggestedPrompts);
 router.post("/suggested/:promptId/approve",  approveSuggestion);
 router.post("/suggested/:promptId/dismiss",  dismissSuggestion);
 
+
+router.post(  "/reports/share",          authMiddleware, generateShareableReport)
+router.get(   "/reports/share/:planId",  authMiddleware, getShareStatus)
+router.delete("/reports/share/:planId",  authMiddleware, revokeShareableReport)
+router.get(   "/report/public/:token",                   getPublicReport)
+
+
 // ⚠️ wildcard — must be LAST among prompt routes
 router.delete("/:promptId", deletePrompt);
 
@@ -184,13 +191,8 @@ router.post("/monitor",          startAeoMonitor);
 router.get( "/presence-metrics", getAeoPresence);
 router.get("/citations/:planId",         authMiddleware, getCitations)
 router.get("/citations/:planId/sources", authMiddleware, getCitationSources)
-router.post(  "/reports/share",           authMiddleware, generateShareableReport)
-router.get(   "/reports/share/:planId",   authMiddleware, getShareStatus)
-router.delete("/reports/share/:planId",   authMiddleware, revokeShareableReport)
- 
-// ── Public route — NO auth (add to your main app router, not behind auth) ──
-router.get("/report/public/:token", getPublicReport)
 
 
-router.get("/technical-audit/:planId", authMiddleware, getTechnicalAudit)
+
+router.get("/technical-audit/:planId",authMiddleware, getTechnicalAudit)
 export default router;

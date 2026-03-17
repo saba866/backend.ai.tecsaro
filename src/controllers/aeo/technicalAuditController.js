@@ -113,7 +113,7 @@ export const getTechnicalAudit = async (req, res) => {
       .from("aeo_pages")
       .select("id, url, title, meta_description, description, h1, html, word_count, ai_improvements, crawled_at")
       .eq("plan_id", planId)
-      .eq("status", "crawled")
+      .in("status", ["crawled", "understood"])
       .order("crawled_at", { ascending: false })
 
     if (error) {
