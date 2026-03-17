@@ -1,16 +1,393 @@
 
 
 
-// import axios   from "axios";
-// import * as cheerio from "cheerio";
-// import { supabase }    from "../config/supabase.js";
+// // import axios   from "axios";
+// // import * as cheerio from "cheerio";
+// // import { supabase }    from "../config/supabase.js";
+// // import { cleanContent } from "../utils/aeoCleaner.js";
+// // import { runPipelinePhase1 } from "./aeoPipeline.job.js"; // ← CHANGED
+
+// // // ─────────────────────────────────────────
+// // // TIER LIMITS
+// // // ─────────────────────────────────────────
+// // const PAGE_LIMITS = {
+// //   starter: 10,
+// //   pro:     20,
+// //   default: 10,
+// // };
+
+// // const BATCH_SIZE      = 5;
+// // const REQUEST_TIMEOUT = 10000;
+// // const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// // // ─────────────────────────────────────────
+// // // URL PRIORITY
+// // // ─────────────────────────────────────────
+// // function getUrlPriority(url) {
+// //   const path = url.toLowerCase();
+// //   if (path.match(/\/$/) || path.split("/").length === 3)                      return 0;
+// //   if (path.match(/\/(product|features?|platform|solutions?|capabilities)/))   return 1;
+// //   if (path.match(/\/(pricing|plans?|subscription)/))                           return 2;
+// //   if (path.match(/\/(about|company|team|story|mission)/))                      return 3;
+// //   if (path.match(/\/(compare|vs|versus|alternative)/))                         return 4;
+// //   if (path.match(/\/(customer|case-study|success|testimonial)/))               return 5;
+// //   if (path.match(/\/(faq|help|support)/))                                      return 6;
+// //   if (path.match(/\/(blog|post|article|news)/))                                return 7;
+// //   return 8;
+// // }
+
+// // function shouldSkipUrl(url, baseUrl) {
+// //   try {
+// //     const parsed = new URL(url);
+// //     const base   = new URL(baseUrl);
+// //     if (parsed.hostname !== base.hostname) return true;
+// //     const path = parsed.pathname.toLowerCase();
+// //     if (path.match(/\.(pdf|png|jpg|jpeg|gif|svg|ico|css|js|xml|json|zip|woff|ttf|eot)$/)) return true;
+// //     if (path.match(/\/(login|logout|signin|signup|register|auth|oauth|admin|dashboard|app|api|cdn)\//)) return true;
+// //     if (parsed.hash && !parsed.pathname) return true;
+// //     return false;
+// //   } catch {
+// //     return true;
+// //   }
+// // }
+
+// // function normalizeUrl(url) {
+// //   try {
+// //     const parsed = new URL(url);
+// //     parsed.hash  = "";
+// //     parsed.searchParams.delete("utm_source");
+// //     parsed.searchParams.delete("utm_medium");
+// //     parsed.searchParams.delete("utm_campaign");
+// //     parsed.searchParams.delete("ref");
+// //     let normalized = parsed.toString();
+// //     if (normalized.endsWith("/") && parsed.pathname !== "/") {
+// //       normalized = normalized.slice(0, -1);
+// //     }
+// //     return normalized;
+// //   } catch {
+// //     return url;
+// //   }
+// // }
+
+// // function extractLinks($, baseUrl, currentUrl) {
+// //   const links = new Set();
+// //   $("a[href]").each((_, el) => {
+// //     const href = $(el).attr("href");
+// //     if (!href) return;
+// //     try {
+// //       const absolute   = new URL(href, currentUrl).toString();
+// //       const normalized = normalizeUrl(absolute);
+// //       if (!shouldSkipUrl(normalized, baseUrl)) links.add(normalized);
+// //     } catch {}
+// //   });
+// //   return [...links];
+// // }
+
+// // function extractMetadata($) {
+// //   return {
+// //     title:       $("title").first().text().trim()                        || null,
+// //     description: $('meta[name="description"]').attr("content")?.trim()  || null,
+// //     h1:          $("h1").first().text().trim()                           || null,
+// //     canonical:   $('link[rel="canonical"]').attr("href")?.trim()        || null,
+// //   };
+// // }
+
+// // async function fetchPage(url) {
+// //   try {
+// //     const response = await axios.get(url, {
+// //       timeout:      REQUEST_TIMEOUT,
+// //       maxRedirects: 5,
+// //       headers: {
+// //         "User-Agent":      "Mozilla/5.0 (compatible; TecSaroBot/1.0)",
+// //         "Accept":          "text/html,application/xhtml+xml",
+// //         "Accept-Language": "en-US,en;q=0.9",
+// //       },
+// //     });
+
+// //     const contentType = response.headers["content-type"] || "";
+// //     if (!contentType.includes("text/html")) return null;
+
+// //     const $ = cheerio.load(response.data);
+// //     $("nav, header, footer, script, style, noscript, [role='navigation'], .nav, .header, .footer, .cookie, .banner").remove();
+
+// //     const rawText     = $("main, article, .content, #content, body").first().text() || $("body").text();
+// //     const contentText = cleanContent(rawText);
+
+// //     if (!contentText || contentText.length < 150) return null;
+
+// //     const meta  = extractMetadata($);
+// //     const links = extractLinks($, url, url);
+
+// //     return { url, contentText, meta, links };
+// //   } catch (err) {
+// //     console.log(`   ⚠️  Failed: ${url} (${err.code || err.message})`);
+// //     return null;
+// //   }
+// // }
+
+// // async function saveBatchAndUpdateProgress(jobId, planId, pages, crawledCount) {
+// //   if (!pages.length) return;
+
+// //   await Promise.all(pages.map((page) =>
+// //     supabase
+// //       .from("aeo_pages")
+// //       .upsert(
+// //         {
+// //           plan_id:      planId,
+// //           url:          page.url,
+// //           content_text: page.contentText,
+// //           title:        page.meta.title,
+// //           description:  page.meta.description,
+// //           h1:           page.meta.h1,
+// //           status:       "crawled",
+// //           crawled_at:   new Date().toISOString(),
+// //         },
+// //         { onConflict: "plan_id,url" }
+// //       )
+// //   ));
+
+// //   await supabase
+// //     .from("aeo_crawl_jobs")
+// //     .update({ pages_crawled: crawledCount, updated_at: new Date().toISOString() })
+// //     .eq("id", jobId);
+
+// //   console.log(`   💾 Saved batch | Total crawled: ${crawledCount}`);
+// // }
+
+// // // ─────────────────────────────────────────
+// // // ENTRY POINT
+// // // ─────────────────────────────────────────
+// // export async function startCrawlJob(planId) {
+// //   const { data: lastJob } = await supabase
+// //     .from("aeo_crawl_jobs")
+// //     .select("id, status, pages_crawled")
+// //     .eq("plan_id", planId)
+// //     .order("started_at", { ascending: false })
+// //     .limit(1)
+// //     .maybeSingle();
+
+// //   if (lastJob?.status === "running") {
+// //     console.warn("⏭️  Crawl already running:", planId);
+// //     return lastJob;
+// //   }
+// //   if (lastJob?.status === "completed") {
+// //     console.warn("⏭️  Crawl already completed:", planId);
+// //     return lastJob;
+// //   }
+
+// //   const { data: plan, error: planErr } = await supabase
+// //     .from("plans")
+// //     .select("website_url, tier, name")
+// //     .eq("id", planId)
+// //     .single();
+
+// //   if (planErr || !plan?.website_url) throw new Error("Plan not found or missing website_url");
+
+// //   const tier     = plan.tier || "starter";
+// //   const maxPages = PAGE_LIMITS[tier] || PAGE_LIMITS.default;
+
+// //   console.log(`\n🕷️  [CrawlJob] Starting: "${plan.name}" | Tier: ${tier} | Max: ${maxPages}`);
+
+// //   const { data: job, error: jobErr } = await supabase
+// //     .from("aeo_crawl_jobs")
+// //     .insert({
+// //       plan_id:       planId,
+// //       status:        "running",
+// //       started_at:    new Date().toISOString(),
+// //       max_pages:     maxPages,
+// //       pages_crawled: 0,
+// //       tier,
+// //     })
+// //     .select()
+// //     .single();
+
+// //   if (jobErr) throw jobErr;
+
+// //   // Init pipeline status row
+// //   await supabase.from("aeo_pipeline_status").upsert({
+// //     plan_id:           planId,
+// //     crawl_status:      "running",
+// //     understand_status: "pending",
+// //     prompt_status:     "pending",
+// //     mapping_status:    "pending",
+// //     competitor_status: "pending",
+// //     answer_status:     "pending",
+// //     visibility_status: "pending",
+// //     presence_status:   "pending",
+// //     overall_status:    "pending",
+// //     pipeline_phase:    "crawling",
+// //     updated_at:        new Date().toISOString(),
+// //   }, { onConflict: "plan_id" });
+
+// //   // Also set plan.pipeline_status so Step3 polling works
+// //   await supabase
+// //     .from("plans")
+// //     .update({ pipeline_status: "crawling" })
+// //     .eq("id", planId);
+
+// //   // Run async — don't block HTTP response
+// //   setTimeout(() => runCrawlJob(job.id, planId, plan.website_url, maxPages), 0);
+
+// //   return job;
+// // }
+
+// // // ─────────────────────────────────────────
+// // // MAIN CRAWLER
+// // // ─────────────────────────────────────────
+// // async function runCrawlJob(jobId, planId, websiteUrl, maxPages) {
+// //   let baseUrl = websiteUrl.replace(/\/$/, "");
+// //   if (!baseUrl.startsWith("http")) baseUrl = "https://" + baseUrl;
+
+// //   const startUrl = normalizeUrl(baseUrl);
+// //   const visited  = new Set();
+// //   const failed   = new Set();
+// //   let queue        = [{ url: startUrl, priority: 0 }];
+// //   let crawledCount = 0;
+
+// //   console.log(`\n🕷️  Crawling: ${baseUrl} | Limit: ${maxPages} | Batch: ${BATCH_SIZE}`);
+
+// //   try {
+// //     while (queue.length > 0 && crawledCount < maxPages) {
+// //       queue.sort((a, b) => a.priority - b.priority);
+
+// //       const remaining = maxPages - crawledCount;
+// //       const batchSize = Math.min(BATCH_SIZE, remaining, queue.length);
+// //       const batch     = [];
+
+// //       while (batch.length < batchSize && queue.length > 0) {
+// //         const item = queue.shift();
+// //         if (!visited.has(item.url) && !failed.has(item.url)) {
+// //           visited.add(item.url);
+// //           batch.push(item.url);
+// //         }
+// //       }
+
+// //       if (!batch.length) break;
+
+// //       console.log(`\n📦 Batch [${crawledCount + 1}–${crawledCount + batch.length}/${maxPages}]:`);
+// //       batch.forEach((url) => console.log(`   → ${url}`));
+
+// //       const results      = await Promise.allSettled(batch.map(fetchPage));
+// //       const successPages = [];
+
+// //       for (let i = 0; i < results.length; i++) {
+// //         const result = results[i];
+// //         const url    = batch[i];
+
+// //         if (result.status === "rejected" || !result.value) {
+// //           failed.add(url);
+// //           console.log(`   ❌ Skipped: ${url}`);
+// //           continue;
+// //         }
+
+// //         const page = result.value;
+// //         successPages.push(page);
+// //         console.log(`   ✅ ${page.contentText.length} chars | "${page.meta.title || "no title"}"`);
+
+// //         if (crawledCount + successPages.length < maxPages) {
+// //           for (const link of page.links) {
+// //             if (!visited.has(link) && !failed.has(link)) {
+// //               const alreadyQueued = queue.some((q) => q.url === link);
+// //               if (!alreadyQueued) {
+// //                 queue.push({ url: link, priority: getUrlPriority(link) });
+// //               }
+// //             }
+// //           }
+// //         }
+// //       }
+
+// //       crawledCount += successPages.length;
+// //       await saveBatchAndUpdateProgress(jobId, planId, successPages, crawledCount);
+// //       console.log(`\n📊 Progress: ${crawledCount}/${maxPages} | Queue: ${queue.length} pending`);
+
+// //       if (queue.length > 0 && crawledCount < maxPages) await sleep(500);
+// //     }
+
+// //     // ── Mark crawl complete ──
+// //     await supabase
+// //       .from("aeo_crawl_jobs")
+// //       .update({
+// //         status:        "completed",
+// //         pages_found:   visited.size,
+// //         pages_crawled: crawledCount,
+// //         finished_at:   new Date().toISOString(),
+// //       })
+// //       .eq("id", jobId);
+
+// //     await supabase
+// //       .from("aeo_pipeline_status")
+// //       .update({ crawl_status: "completed", updated_at: new Date().toISOString() })
+// //       .eq("plan_id", planId);
+
+// //     console.log(`\n✅ [CrawlJob] Complete — ${crawledCount} pages`);
+
+// //     // ── CHANGED: delegate to Phase 1 (understand → prompt discovery → pause) ──
+// //     await runPipelinePhase1(planId);
+
+// //   } catch (err) {
+// //     console.error("❌ [CrawlJob] Fatal error:", err.message);
+
+// //     await supabase
+// //       .from("aeo_crawl_jobs")
+// //       .update({ status: "failed", error: err.message, finished_at: new Date().toISOString() })
+// //       .eq("id", jobId);
+
+// //     await supabase
+// //       .from("aeo_pipeline_status")
+// //       .update({ crawl_status: "failed", pipeline_phase: "failed", updated_at: new Date().toISOString() })
+// //       .eq("plan_id", planId);
+// //   }
+// // }
+
+// // // ─────────────────────────────────────────
+// // // GET CRAWL STATUS
+// // // ─────────────────────────────────────────
+// // export async function getCrawlStatus(planId) {
+// //   const { data: job } = await supabase
+// //     .from("aeo_crawl_jobs")
+// //     .select("id, status, pages_crawled, max_pages, started_at, finished_at, tier")
+// //     .eq("plan_id", planId)
+// //     .order("started_at", { ascending: false })
+// //     .limit(1)
+// //     .maybeSingle();
+
+// //   if (!job) return { status: "not_started", pages_crawled: 0, max_pages: 20 };
+
+// //   const { data: pages } = await supabase
+// //     .from("aeo_pages")
+// //     .select("url, title, crawled_at")
+// //     .eq("plan_id", planId)
+// //     .order("crawled_at", { ascending: false })
+// //     .limit(job.pages_crawled || 0);
+
+// //   return {
+// //     status:        job.status,
+// //     pages_crawled: job.pages_crawled || 0,
+// //     max_pages:     job.max_pages     || 20,
+// //     progress_pct:  Math.round(((job.pages_crawled || 0) / (job.max_pages || 20)) * 100),
+// //     started_at:    job.started_at,
+// //     finished_at:   job.finished_at,
+// //     tier:          job.tier,
+// //     recent_pages:  pages || [],
+// //     milestones:    job.max_pages <= 20 ? [5, 10, 15, 20] : [5, 10, 20, 30, 40],
+// //   };
+// // }
+
+
+
+
+
+// import axios        from "axios";
+// import * as cheerio  from "cheerio";
+// import { supabase }  from "../config/supabase.js";
 // import { cleanContent } from "../utils/aeoCleaner.js";
-// import { runPipelinePhase1 } from "./aeoPipeline.job.js"; // ← CHANGED
+// import { runPipelinePhase1 } from "./aeoPipeline.job.js";
 
 // // ─────────────────────────────────────────
 // // TIER LIMITS
 // // ─────────────────────────────────────────
 // const PAGE_LIMITS = {
+//   free: 5,
 //   starter: 10,
 //   pro:     20,
 //   default: 10,
@@ -85,22 +462,28 @@
 
 // function extractMetadata($) {
 //   return {
-//     title:       $("title").first().text().trim()                        || null,
-//     description: $('meta[name="description"]').attr("content")?.trim()  || null,
-//     h1:          $("h1").first().text().trim()                           || null,
-//     canonical:   $('link[rel="canonical"]').attr("href")?.trim()        || null,
+//     title:       $("title").first().text().trim()                       || null,
+//     description: $('meta[name="description"]').attr("content")?.trim() || null,
+//     h1:          $("h1").first().text().trim()                          || null,
+//     canonical:   $('link[rel="canonical"]').attr("href")?.trim()       || null,
 //   };
 // }
 
+// // ─────────────────────────────────────────
+// // FETCH PAGE — with TecsaroBot User-Agent
+// // and Cloudflare block detection
+// // ─────────────────────────────────────────
 // async function fetchPage(url) {
 //   try {
 //     const response = await axios.get(url, {
 //       timeout:      REQUEST_TIMEOUT,
 //       maxRedirects: 5,
 //       headers: {
-//         "User-Agent":      "Mozilla/5.0 (compatible; TecSaroBot/1.0)",
-//         "Accept":          "text/html,application/xhtml+xml",
-//         "Accept-Language": "en-US,en;q=0.9",
+//         "User-Agent":      "TecsaroBot/1.0 (+https://ai.tecsaro.com/bot)",
+//         "Accept":          "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+//         "Accept-Language": "en-US,en;q=0.5",
+//         "Accept-Encoding": "gzip, deflate, br",
+//         "Connection":      "keep-alive",
 //       },
 //     });
 
@@ -119,12 +502,24 @@
 //     const links = extractLinks($, url, url);
 
 //     return { url, contentText, meta, links };
+
 //   } catch (err) {
+//     const status = err?.response?.status;
+
+//     // ── Cloudflare or WAF block ──
+//     if (status === 403 || status === 503 || status === 520 || status === 521 || status === 522) {
+//       console.log(`   🚫 Cloudflare blocked: ${url} (HTTP ${status})`);
+//       return { blocked: true, url, status };
+//     }
+
 //     console.log(`   ⚠️  Failed: ${url} (${err.code || err.message})`);
 //     return null;
 //   }
 // }
 
+// // ─────────────────────────────────────────
+// // SAVE BATCH TO SUPABASE
+// // ─────────────────────────────────────────
 // async function saveBatchAndUpdateProgress(jobId, planId, pages, crawledCount) {
 //   if (!pages.length) return;
 
@@ -152,6 +547,36 @@
 //     .eq("id", jobId);
 
 //   console.log(`   💾 Saved batch | Total crawled: ${crawledCount}`);
+// }
+
+// // ─────────────────────────────────────────
+// // MARK JOB AS CLOUDFLARE BLOCKED
+// // ─────────────────────────────────────────
+// async function markCloudflareBlocked(jobId, planId) {
+//   await supabase
+//     .from("aeo_crawl_jobs")
+//     .update({
+//       status:      "failed",
+//       error:       "CLOUDFLARE_BLOCKED",
+//       finished_at: new Date().toISOString(),
+//     })
+//     .eq("id", jobId);
+
+//   await supabase
+//     .from("aeo_pipeline_status")
+//     .update({
+//       crawl_status:   "failed",
+//       pipeline_phase: "failed",
+//       updated_at:     new Date().toISOString(),
+//     })
+//     .eq("plan_id", planId);
+
+//   await supabase
+//     .from("plans")
+//     .update({ pipeline_status: "failed" })
+//     .eq("id", planId);
+
+//   console.log("❌ Homepage blocked by Cloudflare — crawl failed");
 // }
 
 // // ─────────────────────────────────────────
@@ -219,7 +644,7 @@
 //     updated_at:        new Date().toISOString(),
 //   }, { onConflict: "plan_id" });
 
-//   // Also set plan.pipeline_status so Step3 polling works
+//   // Set plan.pipeline_status so Step3 polling works
 //   await supabase
 //     .from("plans")
 //     .update({ pipeline_status: "crawling" })
@@ -281,6 +706,22 @@
 //         }
 
 //         const page = result.value;
+
+//         // ── Cloudflare blocked ──
+//         if (page.blocked) {
+//           console.log(`   🚫 Blocked by Cloudflare: ${url} (HTTP ${page.status})`);
+
+//           // If the homepage itself is blocked — stop entire crawl
+//           if (url === startUrl) {
+//             await markCloudflareBlocked(jobId, planId);
+//             return;
+//           }
+
+//           // Otherwise just skip this page and continue
+//           failed.add(url);
+//           continue;
+//         }
+
 //         successPages.push(page);
 //         console.log(`   ✅ ${page.contentText.length} chars | "${page.meta.title || "no title"}"`);
 
@@ -321,7 +762,7 @@
 
 //     console.log(`\n✅ [CrawlJob] Complete — ${crawledCount} pages`);
 
-//     // ── CHANGED: delegate to Phase 1 (understand → prompt discovery → pause) ──
+//     // Delegate to Phase 1
 //     await runPipelinePhase1(planId);
 
 //   } catch (err) {
@@ -345,13 +786,26 @@
 // export async function getCrawlStatus(planId) {
 //   const { data: job } = await supabase
 //     .from("aeo_crawl_jobs")
-//     .select("id, status, pages_crawled, max_pages, started_at, finished_at, tier")
+//     .select("id, status, error, pages_crawled, max_pages, started_at, finished_at, tier")
 //     .eq("plan_id", planId)
 //     .order("started_at", { ascending: false })
 //     .limit(1)
 //     .maybeSingle();
 
 //   if (!job) return { status: "not_started", pages_crawled: 0, max_pages: 20 };
+
+//   // ── Cloudflare block — return helpful message to frontend ──
+//   if (job.status === "failed" && job.error === "CLOUDFLARE_BLOCKED") {
+//     return {
+//       status:        "failed",
+//       errorType:     "CLOUDFLARE_BLOCKED",
+//       message:       "Your website's Cloudflare is blocking TecsaroBot",
+//       fix:           "Go to Cloudflare → Security → WAF → Custom Rules → Add: User-Agent contains 'TecsaroBot' → Allow",
+//       helpLink:      "https://ai.tecsaro.com/help",
+//       pages_crawled: 0,
+//       max_pages:     job.max_pages || 20,
+//     };
+//   }
 
 //   const { data: pages } = await supabase
 //     .from("aeo_pages")
@@ -374,28 +828,60 @@
 // }
 
 
-
-
-
 import axios        from "axios";
 import * as cheerio  from "cheerio";
 import { supabase }  from "../config/supabase.js";
 import { cleanContent } from "../utils/aeoCleaner.js";
 import { runPipelinePhase1 } from "./aeoPipeline.job.js";
 
-// ─────────────────────────────────────────
-// TIER LIMITS
-// ─────────────────────────────────────────
-const PAGE_LIMITS = {
-  free: 5,
-  starter: 10,
-  pro:     20,
-  default: 10,
-};
-
 const BATCH_SIZE      = 5;
 const REQUEST_TIMEOUT = 10000;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// ─────────────────────────────────────────
+// GET PAGES LIMIT — live from pricing_plans
+// billing_profiles.current_plan_slug → pricing_plans.pages_limit
+// ─────────────────────────────────────────
+async function getPagesLimit(planId) {
+  const { data: plan, error: planErr } = await supabase
+    .from("plans")
+    .select("tier, user_id, website_url, name")
+    .eq("id", planId)
+    .single();
+
+  if (planErr || !plan) throw new Error("Plan not found: " + planId);
+
+  // billing_profiles is source of truth for current plan
+  const { data: billing } = await supabase
+    .from("billing_profiles")
+    .select("current_plan_slug, subscription_status")
+    .eq("user_id", plan.user_id)
+    .maybeSingle();
+
+  const isActive = !billing?.subscription_status ||
+    ["active", "trial", "created"].includes(billing.subscription_status);
+
+  const effectiveSlug = (isActive && billing?.current_plan_slug)
+    ? billing.current_plan_slug
+    : (plan.tier ?? "free");
+
+  // Pull pages_limit live — no hardcoded map
+  const { data: pricingPlan } = await supabase
+    .from("pricing_plans")
+    .select("pages_limit")
+    .eq("slug", effectiveSlug)
+    .eq("is_active", true)
+    .maybeSingle();
+
+  const maxPages = pricingPlan?.pages_limit ?? 5; // default to free limit if slug not found
+
+  return {
+    tier:       effectiveSlug,
+    maxPages,
+    websiteUrl: plan.website_url,
+    planName:   plan.name,
+  };
+}
 
 // ─────────────────────────────────────────
 // URL PRIORITY
@@ -470,8 +956,7 @@ function extractMetadata($) {
 }
 
 // ─────────────────────────────────────────
-// FETCH PAGE — with TecsaroBot User-Agent
-// and Cloudflare block detection
+// FETCH PAGE
 // ─────────────────────────────────────────
 async function fetchPage(url) {
   try {
@@ -506,7 +991,6 @@ async function fetchPage(url) {
   } catch (err) {
     const status = err?.response?.status;
 
-    // ── Cloudflare or WAF block ──
     if (status === 403 || status === 503 || status === 520 || status === 521 || status === 522) {
       console.log(`   🚫 Cloudflare blocked: ${url} (HTTP ${status})`);
       return { blocked: true, url, status };
@@ -518,7 +1002,7 @@ async function fetchPage(url) {
 }
 
 // ─────────────────────────────────────────
-// SAVE BATCH TO SUPABASE
+// SAVE BATCH
 // ─────────────────────────────────────────
 async function saveBatchAndUpdateProgress(jobId, planId, pages, crawledCount) {
   if (!pages.length) return;
@@ -550,25 +1034,17 @@ async function saveBatchAndUpdateProgress(jobId, planId, pages, crawledCount) {
 }
 
 // ─────────────────────────────────────────
-// MARK JOB AS CLOUDFLARE BLOCKED
+// MARK CLOUDFLARE BLOCKED
 // ─────────────────────────────────────────
 async function markCloudflareBlocked(jobId, planId) {
   await supabase
     .from("aeo_crawl_jobs")
-    .update({
-      status:      "failed",
-      error:       "CLOUDFLARE_BLOCKED",
-      finished_at: new Date().toISOString(),
-    })
+    .update({ status: "failed", error: "CLOUDFLARE_BLOCKED", finished_at: new Date().toISOString() })
     .eq("id", jobId);
 
   await supabase
     .from("aeo_pipeline_status")
-    .update({
-      crawl_status:   "failed",
-      pipeline_phase: "failed",
-      updated_at:     new Date().toISOString(),
-    })
+    .update({ crawl_status: "failed", pipeline_phase: "failed", updated_at: new Date().toISOString() })
     .eq("plan_id", planId);
 
   await supabase
@@ -583,6 +1059,7 @@ async function markCloudflareBlocked(jobId, planId) {
 // ENTRY POINT
 // ─────────────────────────────────────────
 export async function startCrawlJob(planId) {
+  // Check for existing job
   const { data: lastJob } = await supabase
     .from("aeo_crawl_jobs")
     .select("id, status, pages_crawled")
@@ -600,18 +1077,12 @@ export async function startCrawlJob(planId) {
     return lastJob;
   }
 
-  const { data: plan, error: planErr } = await supabase
-    .from("plans")
-    .select("website_url, tier, name")
-    .eq("id", planId)
-    .single();
+  // ── Live limit from billing_profiles → pricing_plans ──
+  const { tier, maxPages, websiteUrl, planName } = await getPagesLimit(planId);
 
-  if (planErr || !plan?.website_url) throw new Error("Plan not found or missing website_url");
+  if (!websiteUrl) throw new Error("Plan missing website_url");
 
-  const tier     = plan.tier || "starter";
-  const maxPages = PAGE_LIMITS[tier] || PAGE_LIMITS.default;
-
-  console.log(`\n🕷️  [CrawlJob] Starting: "${plan.name}" | Tier: ${tier} | Max: ${maxPages}`);
+  console.log(`\n🕷️  [CrawlJob] Starting: "${planName}" | Plan: ${tier} | Max pages: ${maxPages}`);
 
   const { data: job, error: jobErr } = await supabase
     .from("aeo_crawl_jobs")
@@ -628,7 +1099,7 @@ export async function startCrawlJob(planId) {
 
   if (jobErr) throw jobErr;
 
-  // Init pipeline status row
+  // Init pipeline status
   await supabase.from("aeo_pipeline_status").upsert({
     plan_id:           planId,
     crawl_status:      "running",
@@ -644,14 +1115,13 @@ export async function startCrawlJob(planId) {
     updated_at:        new Date().toISOString(),
   }, { onConflict: "plan_id" });
 
-  // Set plan.pipeline_status so Step3 polling works
   await supabase
     .from("plans")
     .update({ pipeline_status: "crawling" })
     .eq("id", planId);
 
   // Run async — don't block HTTP response
-  setTimeout(() => runCrawlJob(job.id, planId, plan.website_url, maxPages), 0);
+  setTimeout(() => runCrawlJob(job.id, planId, websiteUrl, maxPages), 0);
 
   return job;
 }
@@ -707,17 +1177,12 @@ async function runCrawlJob(jobId, planId, websiteUrl, maxPages) {
 
         const page = result.value;
 
-        // ── Cloudflare blocked ──
         if (page.blocked) {
           console.log(`   🚫 Blocked by Cloudflare: ${url} (HTTP ${page.status})`);
-
-          // If the homepage itself is blocked — stop entire crawl
           if (url === startUrl) {
             await markCloudflareBlocked(jobId, planId);
             return;
           }
-
-          // Otherwise just skip this page and continue
           failed.add(url);
           continue;
         }
@@ -744,7 +1209,7 @@ async function runCrawlJob(jobId, planId, websiteUrl, maxPages) {
       if (queue.length > 0 && crawledCount < maxPages) await sleep(500);
     }
 
-    // ── Mark crawl complete ──
+    // ── Mark complete ──
     await supabase
       .from("aeo_crawl_jobs")
       .update({
@@ -762,7 +1227,6 @@ async function runCrawlJob(jobId, planId, websiteUrl, maxPages) {
 
     console.log(`\n✅ [CrawlJob] Complete — ${crawledCount} pages`);
 
-    // Delegate to Phase 1
     await runPipelinePhase1(planId);
 
   } catch (err) {
@@ -792,9 +1256,9 @@ export async function getCrawlStatus(planId) {
     .limit(1)
     .maybeSingle();
 
-  if (!job) return { status: "not_started", pages_crawled: 0, max_pages: 20 };
+  if (!job) return { status: "not_started", pages_crawled: 0, max_pages: 5 };
 
-  // ── Cloudflare block — return helpful message to frontend ──
+  // Cloudflare block — return helpful message to frontend
   if (job.status === "failed" && job.error === "CLOUDFLARE_BLOCKED") {
     return {
       status:        "failed",
@@ -803,7 +1267,7 @@ export async function getCrawlStatus(planId) {
       fix:           "Go to Cloudflare → Security → WAF → Custom Rules → Add: User-Agent contains 'TecsaroBot' → Allow",
       helpLink:      "https://ai.tecsaro.com/help",
       pages_crawled: 0,
-      max_pages:     job.max_pages || 20,
+      max_pages:     job.max_pages || 5,
     };
   }
 
@@ -817,12 +1281,12 @@ export async function getCrawlStatus(planId) {
   return {
     status:        job.status,
     pages_crawled: job.pages_crawled || 0,
-    max_pages:     job.max_pages     || 20,
-    progress_pct:  Math.round(((job.pages_crawled || 0) / (job.max_pages || 20)) * 100),
+    max_pages:     job.max_pages     || 5,
+    progress_pct:  Math.round(((job.pages_crawled || 0) / (job.max_pages || 5)) * 100),
     started_at:    job.started_at,
     finished_at:   job.finished_at,
     tier:          job.tier,
     recent_pages:  pages || [],
-    milestones:    job.max_pages <= 20 ? [5, 10, 15, 20] : [5, 10, 20, 30, 40],
+    milestones:    job.max_pages <= 10 ? [2, 5, 8, 10] : [5, 10, 15, 20],
   };
 }
