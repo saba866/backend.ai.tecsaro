@@ -188,11 +188,19 @@ export const getPublicReport = async (req, res) => {
     const planId = report.plan_id
 
     // ── Increment view counter ──
-    await supabase
-      .from("shareable_reports")
-      .update({ views: supabase.rpc("increment_views", { report_id: report.id }), last_viewed: new Date().toISOString() })
-      .eq("id", report.id)
+   const { data: currentReport } = await supabase
+  .from("shareable_reports")
+  .select("views")
+  .eq("id", report.id)
+  .single()
 
+await supabase
+  .from("shareable_reports")
+  .update({
+    views:       (currentReport?.views ?? 0) + 1,
+    last_viewed: new Date().toISOString(),
+  })
+  .eq("id", report.id)
     // ── Fetch all report data in parallel ──
     const [
       { data: plan        },

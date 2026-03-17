@@ -191,5 +191,6 @@ router.delete("/reports/share/:planId",   authMiddleware, revokeShareableReport)
 // ── Public route — NO auth (add to your main app router, not behind auth) ──
 router.get("/report/public/:token", getPublicReport)
 
+
 router.get("/technical-audit/:planId", authMiddleware, getTechnicalAudit)
 export default router;
